@@ -10,3 +10,4 @@ class Playlist(BaseModel):
     title: str
     count_videos: int
     videos: List[Videos]
+    thumbnail: str
