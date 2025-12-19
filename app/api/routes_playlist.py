@@ -23,6 +23,7 @@ def analyze_playlist_route(url: str):
             count_videos=len(videos),
             videos=videos,
             thumbnail=data.get("thumbnail")
+
         )
 
     except Exception as e:
