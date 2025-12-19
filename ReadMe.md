@@ -61,8 +61,8 @@
 
     - Task status
 
-### Pastas-alvo
+## Pastas-alvo
 
-    - app/api/
-    - app/schemas/
-    - app/core/
+- app/api/
+- app/schemas/
+- app/core/
