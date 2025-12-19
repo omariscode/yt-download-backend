@@ -1,6 +1,9 @@
 from yt_dlp import YoutubeDL
 
 def analyze_playlist(url: str) -> dict:
+    """
+    Analisa o link da playlist e retorna os vídeos
+    """
     ydl_opts = {
         "quiet": True,
         "skip_download": True,
