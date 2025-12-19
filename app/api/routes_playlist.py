@@ -1,10 +1,10 @@
 from fastapi import APIRouter, HTTPException
-from app.schemas.playlist import Playlist, Videos
+from app.schemas.playlist import Playlist, Videos, PlaylistCreate
 from app.services import analyze_playlist
 
 playlist_router = APIRouter(prefix="/playlists", tags=["Playlists"])
 
-@playlist_router.post("/", response_model=Playlist)
+@playlist_router.post("/", response_model=PlaylistCreate)
 def analyze_playlist_route(url: str):
     try:
         data = analyze_playlist(url)
@@ -21,8 +21,8 @@ def analyze_playlist_route(url: str):
         return Playlist(
             title=data.get("title"),
             count_videos=len(videos),
-            videos=videos
-            thumbnail=thumbnail
+            videos=videos,
+            thumbnail=data.get("thumbnail")
         )
 
     except Exception as e:
