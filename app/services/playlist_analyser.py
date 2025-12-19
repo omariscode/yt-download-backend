@@ -12,6 +12,7 @@ def analyze_playlist(url: str) -> dict:
 
     return {
         "title": info.get("title"),
+        "thumbnail": info.get("thumbnail"),
         "video_count": len(info.get("entries", [])),
         "videos": [
             {
