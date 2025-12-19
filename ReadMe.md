@@ -1,33 +1,33 @@
 ## Estruturas de pasta
 
-yt-playlist-downloader/
-├── app/
-│   ├── main.py
-│   ├── api/
-│   │   └── v1/
-│   │       ├── routes_playlist.py
-│   │       └── routes_tasks.py
-│   ├── schemas/
-│   │   ├── playlist.py
-│   │   └── task.py
-│   ├── services/
-│   │   └── playlist_analyzer.py
-│   ├── workers/
-│   │   └── downloader.py
-│   ├── core/
-│   │   ├── config.py
-│   │   └── celery_app.py
-│   └── utils/
-│       └── filesystem.py
-│
-├── downloads/
-│
-├── docker-compose.yml
-├── Dockerfile
-├── requirements.txt
-├── .env.example
-├── .gitignore
-└── README.md
+- yt-playlist-downloader/
+- ├── app/
+- │   ├── main.py
+- │   ├── api/
+- │   │   └── v1/
+- │   │       ├── routes_playlist.py
+- │   │       └── routes_tasks.py
+- │   ├── schemas/
+- │   │   ├── playlist.py
+- │   │   └── task.py
+- │   ├── services/
+- │   │   └── playlist_analyzer.py
+- │   ├── workers/
+- │   │   └── downloader.py
+- │   ├── core/
+- │   │   ├── config.py
+- │   │   └── celery_app.py
+- │   └── utils/
+- │       └── filesystem.py
+- │
+- ├── downloads/
+- │
+- ├── docker-compose.yml
+- ├── Dockerfile
+- ├── requirements.txt
+- ├── .env.example
+- ├── .gitignore
+- └── README.md
 
 ## Omar Rodrigues -> Core + Engine
 
