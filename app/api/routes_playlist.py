@@ -4,10 +4,10 @@ from app.services import analyze_playlist
 
 playlist_router = APIRouter(prefix="/playlists", tags=["Playlists"])
 
-@playlist_router.post("/", response_model=PlaylistCreate)
-def analyze_playlist_route(url: str):
+@playlist_router.post("/", response_model=Playlist)
+def analyze_playlist_route(payload: PlaylistCreate):
     try:
-        data = analyze_playlist(url)
+        data = analyze_playlist(payload.url)
 
         videos = [
             Videos(
