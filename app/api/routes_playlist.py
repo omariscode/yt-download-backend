@@ -1,13 +1,13 @@
 from fastapi import APIRouter, HTTPException
-from app.schemas.playlist import Playlist, Videos
+from app.schemas.playlist import Playlist, Videos, PlaylistCreate
 from app.services import analyze_playlist
 
 playlist_router = APIRouter(prefix="/playlists", tags=["Playlists"])
 
 @playlist_router.post("/", response_model=Playlist)
-def analyze_playlist_route(url: str):
+def analyze_playlist_route(payload: PlaylistCreate):
     try:
-        data = analyze_playlist(url)
+        data = analyze_playlist(payload.url)
 
         videos = [
             Videos(
