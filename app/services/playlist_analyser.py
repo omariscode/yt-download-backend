@@ -28,3 +28,4 @@ def analyze_playlist(url: str) -> dict:
             for v in info.get("entries", [])
         ]
     }
+

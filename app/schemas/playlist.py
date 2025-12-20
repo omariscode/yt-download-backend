@@ -5,6 +5,7 @@ class Videos(BaseModel):
     id: str
     title: str
     duration: int
+    url: str
 
 class Playlist(BaseModel):
     title: str

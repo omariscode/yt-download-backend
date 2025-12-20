@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from schemas.download import SelectedVideo, SelectedVideosPayload
+from app.schemas.download import SelectedVideo, SelectedVideosPayload
 from app.workers.downloader import download_full_playlist_task, download_selected_videos_task
 
 downloads_router = APIRouter(prefix="/downloads", tags=["Downloads"])
