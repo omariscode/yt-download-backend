@@ -3,8 +3,7 @@ from app.services.playlist_download import download_urls
 from app.utils.paths import create_playlist_dir
 from app.utils.zip import zip_folder
 
-@celery_app.task(bind=True)
-def download_full_playlist_task(self, playlist_url: str):
+def download_full_playlist_task(playlist_url: str):
     """
     Baixa playlist inteira e compacta em ZIP
     """
@@ -22,9 +21,7 @@ def download_full_playlist_task(self, playlist_url: str):
         "zip_path": zip_path
     }
 
-@celery_app.task(bind=True)
 def download_selected_videos_task(
-    self,
     video_urls: list[str]
 ):
     """
