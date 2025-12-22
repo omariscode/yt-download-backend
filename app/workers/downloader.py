@@ -1,7 +1,6 @@
-from app.core.celery_app import celery_app
 from app.services.playlist_download import download_urls
 from app.utils.paths import create_playlist_dir
-from app.utils.zip import zip_folder
+from app.utils.zip import zip_folder_stream
 
 def download_full_playlist_task(playlist_url: str):
     """
@@ -14,7 +13,7 @@ def download_full_playlist_task(playlist_url: str):
         output_template=f"{playlist_dir}/%(title)s.%(ext)s",
     )
 
-    zip_path = zip_folder(playlist_dir)
+    zip_path = zip_folder_stream(playlist_dir)
 
     return {
         "status": "done",
@@ -34,8 +33,4 @@ def download_selected_videos_task(
         output_template=f"{playlist_dir}/%(title)s.%(ext)s",
     )
 
-    return {
-        "status": "done",
-        "folder": playlist_dir,
-        "videos": len(video_urls)
-    }
+    return playlist_dir

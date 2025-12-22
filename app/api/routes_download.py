@@ -1,18 +1,29 @@
+import uuid
+from app.utils.zip import zip_folder_stream
 from fastapi import APIRouter, HTTPException
-from app.schemas.download import SelectedVideo, SelectedVideosPayload
-from app.workers.downloader import download_full_playlist_task, download_selected_videos_task
+from fastapi import BackgroundTasks
+from fastapi.responses import FileResponse
+from fastapi import BackgroundTasks
+from app.utils.paths import create_playlist_dir
+from app.services.playlist_download import download_urls
+from fastapi.responses import StreamingResponse
+from app.utils.file_cleaner import cleanup_files
+from app.schemas.download import SelectedVideosPayload
+from app.workers.downloader import download_full_playlist_task
+from app.core.progress import progress_store, job_to_folder
 
 downloads_router = APIRouter(prefix="/downloads", tags=["Downloads"])
 
 @downloads_router.post("/playlist")
 def download_full_playlist(playlist_url: str):
     try:
-        task = download_full_playlist_task(playlist_url)
+        zip_path = download_full_playlist_task(playlist_url)
 
-        return {
-            "message": "Download da playlist iniciado",
-            "task_id": task.id
-        }
+        return FileResponse(
+            path=zip_path,
+            media_type="application/zip",
+            filename="playlist.zip"
+        )
 
     except Exception as e:
         raise HTTPException(
@@ -20,24 +31,47 @@ def download_full_playlist(playlist_url: str):
             detail=f"Erro ao iniciar download da playlist: {str(e)}"
         )
 
+
 @downloads_router.post("/videos")
-def download_selected_videos(payload: SelectedVideosPayload):
-    try:
-        video_urls = [v.url for v in payload.videos if v.select]
+def start_download(payload: SelectedVideosPayload):
+    job_id = uuid.uuid4().hex
 
-        if not video_urls:
-            raise HTTPException(status_code=400, detail="Nenhum vídeo selecionado")
+    folder = create_playlist_dir()
+    job_to_folder[job_id] = folder
 
-        task = download_selected_videos_task(video_urls)
+    progress_store[job_id] = {
+        "stage": "starting",
+        "percent": "0%"
+    }
 
-        return {
-            "message": "Download dos vídeos iniciado",
-            "task_id": task.id,
-            "total_videos": len(video_urls)
+    video_urls = [v.url for v in payload.videos]
+    if not video_urls:
+        raise HTTPException(status_code=400, detail="Nenhum vídeo selecionado")
+
+    download_urls(
+        urls=video_urls,
+        output_template=f"{folder}/%(title)s.%(ext)s",
+        job_id=job_id
+    )
+
+    return {"job_id": job_id}
+
+@downloads_router.get("/download/{job_id}")
+def download_zip(job_id: str, background_tasks: BackgroundTasks):
+    folder = job_to_folder.get(job_id)
+    if not folder:
+        raise HTTPException(status_code=404, detail="Job não encontrado")
+
+    background_tasks.add_task(cleanup_files, folder)
+
+    return StreamingResponse(
+        zip_folder_stream(folder),
+        media_type="application/zip",
+        headers={
+            "Content-Disposition": 'attachment; filename="videos.zip"'
         }
+    )
 
-    except Exception as e:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Erro ao iniciar download dos vídeos: {str(e)}"
-        )
+@downloads_router.get("/progress/{job_id}")
+def get_progress(job_id: str):
+    return progress_store.get(job_id, {"status": "unknown"})
