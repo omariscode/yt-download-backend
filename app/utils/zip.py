@@ -16,20 +16,28 @@ def get_total_size(folder_path: str) -> int:
     return total
 
 def zip_folder_with_progress(folder_path: str, job_id: str) -> str:
-    """
-    Cria ZIP e atualiza progresso de 50 a 100
-    """
     zip_path = f"{folder_path}.zip"
     files = []
+
     for root, _, filenames in os.walk(folder_path):
         for filename in filenames:
             files.append(os.path.join(root, filename))
+
     total_files = len(files)
+
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zipf:
         for i, file_path in enumerate(files):
             zipf.write(file_path, arcname=os.path.basename(file_path))
-            progress_store[job_id] = 50 + int(((i + 1) / total_files) * 50)
-    progress_store[job_id] = 100
+            progress_store[job_id] = {
+                "stage": "zipping",
+                "percent": 50 + int((i + 1) / total_files * 50)
+            }
+
+    progress_store[job_id] = {
+        "stage": "done",
+        "percent": 100
+    }
+
     return zip_path
 
 def zip_folder_stream(folder_path: str, chunk_size=8192):

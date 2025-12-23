@@ -2,11 +2,13 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes_playlist import playlist_router
 from app.api.routes_download import downloads_router
+from app.api.routes_progress import progress_router
 
 app = FastAPI(title="YT Playlist Downloader")
 
 app.include_router(playlist_router, prefix="/api/v1")
 app.include_router(downloads_router, prefix="/api/v1")
+app.include_router(progress_router, prefix="/api/v1")
 
 
 origins = [

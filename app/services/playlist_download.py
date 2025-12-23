@@ -2,17 +2,26 @@ from yt_dlp import YoutubeDL
 from app.core.progress import progress_store
 
 def make_progress_hook(job_id: str):
-    """Progresso do download"""
     def hook(d):
         if d["status"] == "downloading":
-            percent_str = d.get("_percent_str", "0%").strip("%")
-            try:
-                progress_store[job_id] = int(float(percent_str))
-            except ValueError:
-                progress_store[job_id] = 0
+            downloaded = d.get("downloaded_bytes", 0)
+            total = d.get("total_bytes") or d.get("total_bytes_estimate")
+
+            if total:
+                percent = int(downloaded / total * 50)
+                progress_store[job_id] = {
+                    "stage": "downloading",
+                    "percent": percent
+                }
+
         elif d["status"] == "finished":
-            progress_store[job_id] = 50  # Halfway, now zippingj
+            progress_store[job_id] = {
+                "stage": "zipping",
+                "percent": 50
+            }
+
     return hook
+
 
 def download_urls(
     urls: list[str],
