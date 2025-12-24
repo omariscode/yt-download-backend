@@ -1,8 +1,7 @@
 import os
 import zipfile
-import json
-from io import BytesIO
 from app.core.progress import progress_store
+
 
 def get_total_size(folder_path: str) -> int:
     """
@@ -15,7 +14,11 @@ def get_total_size(folder_path: str) -> int:
             total += os.path.getsize(file_path)
     return total
 
+
 def zip_folder_with_progress(folder_path: str, job_id: str) -> str:
+    """
+    Cria um arquivo ZIP da pasta especificada, atualizando o progresso no progress_store
+    """
     zip_path = f"{folder_path}.zip"
     files = []
 
@@ -30,15 +33,24 @@ def zip_folder_with_progress(folder_path: str, job_id: str) -> str:
             zipf.write(file_path, arcname=os.path.basename(file_path))
             progress_store[job_id] = {
                 "stage": "zipping",
-                "percent": 50 + int((i + 1) / total_files * 50)
+                "current": i + 1,
+                "total": total_files,
+                "bytes_downloaded": i + 1,
+                "bytes_total": total_files,
+                "percent": 50 + int((i + 1) / total_files * 50),
             }
 
     progress_store[job_id] = {
         "stage": "done",
-        "percent": 100
+        "current": total_files,
+        "total": total_files,
+        "bytes_downloaded": total_files,
+        "bytes_total": total_files,
+        "percent": 100,
     }
 
     return zip_path
+
 
 def zip_folder_stream(folder_path: str, chunk_size=8192):
     """
@@ -55,6 +67,7 @@ def zip_folder_stream(folder_path: str, chunk_size=8192):
                         zipf.write(file_path, arcname=file)
 
     import threading
+
     threading.Thread(target=zip_writer, daemon=True).start()
 
     with os.fdopen(read_fd, "rb") as pipe:

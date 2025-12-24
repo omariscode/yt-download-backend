@@ -4,6 +4,7 @@ from app.services import analyze_playlist
 
 playlist_router = APIRouter(prefix="/playlists", tags=["Playlists"])
 
+
 @playlist_router.post("/", response_model=Playlist)
 def analyze_playlist_route(payload: PlaylistCreate):
     """
@@ -18,7 +19,7 @@ def analyze_playlist_route(payload: PlaylistCreate):
                 title=video["title"],
                 duration=video["duration"] or 0,
                 url=video["url"],
-                thumbnail=video["thumbnail"]
+                thumbnail=video["thumbnail"],
             )
             for video in data.get("videos", [])
         ]
@@ -27,12 +28,10 @@ def analyze_playlist_route(payload: PlaylistCreate):
             title=data.get("title"),
             count_videos=len(videos),
             videos=videos,
-            thumbnail=data.get("thumbnail")
-
+            thumbnail=data.get("thumbnail"),
         )
 
     except Exception as e:
         raise HTTPException(
-            status_code=400,
-            detail=f"Erro ao analisar playlist: {str(e)}"
+            status_code=400, detail=f"Erro ao analisar playlist: {str(e)}"
         )

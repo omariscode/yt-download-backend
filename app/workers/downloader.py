@@ -2,6 +2,7 @@ from app.services.playlist_download import download_urls
 from app.utils.paths import create_playlist_dir
 from app.utils.zip import zip_folder_stream
 
+
 def download_full_playlist_task(playlist_url: str):
     """
     Baixa playlist inteira e compacta em ZIP
@@ -15,14 +16,10 @@ def download_full_playlist_task(playlist_url: str):
 
     zip_path = zip_folder_stream(playlist_dir)
 
-    return {
-        "status": "done",
-        "zip_path": zip_path
-    }
+    return {"status": "done", "zip_path": zip_path}
 
-def download_selected_videos_task(
-    video_urls: list[str]
-):
+
+def download_selected_videos_task(video_urls: list[str]):
     """
     Baixa apenas vídeos selecionados
     """

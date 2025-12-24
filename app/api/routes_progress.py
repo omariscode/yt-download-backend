@@ -4,6 +4,7 @@ from app.core.progress import progress_store
 
 progress_router = APIRouter(prefix="/ws", tags=["Progress"])
 
+
 @progress_router.websocket("/progress/{job_id}")
 async def websocket_progress(websocket: WebSocket, job_id: str):
     await websocket.accept()

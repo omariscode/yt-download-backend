@@ -1,6 +1,7 @@
 import shutil
 import os
 
+
 def cleanup_files(folder: str, zip_path: str = None):
     if os.path.exists(folder):
         shutil.rmtree(folder)
