@@ -1,6 +1,6 @@
-import asyncio
-import uuid
 import os
+import uuid
+import threading
 from fastapi import APIRouter, HTTPException
 from fastapi import BackgroundTasks
 from fastapi.responses import FileResponse
@@ -41,15 +41,22 @@ async def start_download(payload: SelectedVideosPayload):
 
     video_urls = [v.url for v in payload.videos]
 
-    async def run():
-        download_urls(
-            urls=video_urls,
-            output_template=f"{folder}/%(title)s.%(ext)s",
-            job_id=job_id,
-        )
-        zip_folder_with_progress(folder, job_id)
+    def run():
+        try:
+            download_urls(
+                urls=video_urls,
+                output_template=f"{folder}/%(title)s.%(ext)s",
+                job_id=job_id,
+            )
+            zip_folder_with_progress(folder, job_id)
+        except Exception as e:
+            progress_store[job_id] = {
+                "stage": "error",
+                "percent": 0,
+                "error": str(e),
+            }
 
-    asyncio.create_task(run())
+    threading.Thread(target=run, daemon=True).start()
 
     return {"job_id": job_id}
 
