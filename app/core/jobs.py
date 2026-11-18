@@ -11,7 +11,7 @@ class ProgressState(BaseModel):
     current: int = 0
     total: int = 0
     bytes_downloaded: int = 0
-    bytes_total: int = 0
+    total_bytes: int = 0
     error: str | None = None
     revision: int = 0
 
@@ -30,8 +30,8 @@ class JobStore:
     def update(self, job_id: str, **changes) -> None:
         with self._lock:
             state = self._jobs[job_id]["state"]
-            atualizado = state.model_copy(update={**changes, "revision": state.revision + 1})
-            self._jobs[job_id]["state"] = atualizado
+            updated = state.model_copy(update={**changes, "revision": state.revision + 1})
+            self._jobs[job_id]["state"] = updated
 
     def get_progress(self, job_id: str) -> dict | None:
         with self._lock:
@@ -55,4 +55,11 @@ class JobStore:
                 return job.model_dump()
             return None
 
-    
+    def failed(self, job_id, msg) -> dict | None:
+        job = self._jobs.get(job_id)
+        if job is None:
+            return None
+        updated = self.update(job_id, stage='Error', percent=0, error=msg)
+
+
+job = JobStore()

@@ -1,6 +1,6 @@
 import asyncio
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-from app.core.progress import progress_store
+from app.core.jobs import job
 
 progress_router = APIRouter(prefix="/ws", tags=["Progress"])
 
@@ -13,7 +13,7 @@ async def websocket_progress(websocket: WebSocket, job_id: str):
         last_percent = -1
 
         while True:
-            data = progress_store.get(job_id)
+            data = job.get_progress(job_id)
 
             if not data:
                 await websocket.send_json({"stage": "unknown", "percent": 0})

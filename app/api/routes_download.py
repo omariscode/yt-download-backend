@@ -11,7 +11,7 @@ from app.utils.file_cleaner import cleanup_files
 from app.utils.zip import zip_folder_with_progress
 from app.schemas.download import SelectedVideosPayload
 from app.workers.downloader import download_full_playlist_task
-from app.core.progress import progress_store, job_to_folder
+from app.core.jobs import job
 
 downloads_router = APIRouter(prefix="/downloads", tags=["Downloads"])
 
@@ -22,7 +22,7 @@ def download_full_playlist(playlist_url: str):
         zip_path = download_full_playlist_task(playlist_url)
 
         return FileResponse(
-            path=zip_path, media_type="application/zip", filename="playlist.zip"
+            path=zip_path["zip_path"], media_type="application/zip", filename="playlist.zip"
         )
 
     except Exception as e:
@@ -36,8 +36,7 @@ async def start_download(payload: SelectedVideosPayload):
     job_id = uuid.uuid4().hex
     folder = create_playlist_dir()
 
-    job_to_folder[job_id] = folder
-    progress_store[job_id] = {"stage": "starting", "percent": 0}
+    job.create(folder)
 
     video_urls = [v.url for v in payload.videos]
 
@@ -50,11 +49,8 @@ async def start_download(payload: SelectedVideosPayload):
             )
             zip_folder_with_progress(folder, job_id)
         except Exception as e:
-            progress_store[job_id] = {
-                "stage": "error",
-                "percent": 0,
-                "error": str(e),
-            }
+            job.failed(job_id, msg=e)
+            print(f"Error trying to start download: {e}")
 
     threading.Thread(target=run, daemon=True).start()
 
@@ -63,7 +59,7 @@ async def start_download(payload: SelectedVideosPayload):
 
 @downloads_router.get("/download/{job_id}")
 def download_zip(job_id: str, background_tasks: BackgroundTasks):
-    folder = job_to_folder.get(job_id)
+    folder = job.get_folder(job_id)
     if not folder:
         raise HTTPException(status_code=404, detail="Job não encontrado")
 
@@ -80,4 +76,4 @@ def download_zip(job_id: str, background_tasks: BackgroundTasks):
 
 @downloads_router.get("/progress/{job_id}")
 def get_progress(job_id: str):
-    return progress_store.get(job_id, {"status": "unknown"})
+    return job.get_progress(job_id)
