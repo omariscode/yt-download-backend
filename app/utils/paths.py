@@ -1,7 +1,6 @@
 import os
 import uuid
-
-DOWNLOAD_ROOT = os.getenv("DOWNLOAD_ROOT", "/tmp/downloads")
+from app.core.config import DOWNLOAD_ROOT
 
 
 def create_playlist_dir() -> str:

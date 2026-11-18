@@ -25,7 +25,7 @@ def analyze_playlist_route(payload: PlaylistCreate):
         ]
 
         return Playlist(
-            title=data.get("title"),
+            title=data.get("title") or "",
             count_videos=len(videos),
             videos=videos,
             thumbnail=data.get("thumbnail"),

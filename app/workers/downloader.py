@@ -1,3 +1,5 @@
+import uuid
+
 from app.services.playlist_download import download_urls
 from app.utils.paths import create_playlist_dir
 from app.utils.zip import zip_folder_stream
@@ -12,6 +14,7 @@ def download_full_playlist_task(playlist_url: str):
     download_urls(
         urls=[playlist_url],
         output_template=f"{playlist_dir}/%(title)s.%(ext)s",
+        job_id=uuid.uuid4().hex,
     )
 
     zip_path = zip_folder_stream(playlist_dir)
@@ -28,6 +31,7 @@ def download_selected_videos_task(video_urls: list[str]):
     download_urls(
         urls=video_urls,
         output_template=f"{playlist_dir}/%(title)s.%(ext)s",
+        job_id=uuid.uuid4().hex,
     )
 
     return playlist_dir
