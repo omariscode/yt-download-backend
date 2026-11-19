@@ -38,6 +38,13 @@ class JobStore:
             updated = state.model_copy(update={**changes, "revision": state.revision + 1})
             self._jobs[job_id]["state"] = updated
 
+    def get_job(self, job_id: str):
+        with self._lock:
+            job = self._jobs.get(job_id)
+            if job is None:
+                return None
+            return job.copy()
+
     def get_progress(self, job_id: str) -> dict | None:
         with self._lock:
             job = self._jobs.get(job_id)
