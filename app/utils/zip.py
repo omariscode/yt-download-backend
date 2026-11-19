@@ -3,18 +3,6 @@ import zipfile
 from app.core.jobs import job
 
 
-def get_total_size(folder_path: str) -> int:
-    """
-    Calcula o tamanho total de todos os arquivos na pasta
-    """
-    total = 0
-    for root, _, files in os.walk(folder_path):
-        for file in files:
-            file_path = os.path.join(root, file)
-            total += os.path.getsize(file_path)
-    return total
-
-
 def zip_folder_with_progress(folder_path: str, job_id: str) -> str:
     """
     Cria um arquivo ZIP da pasta especificada, atualizando o progresso do job
@@ -49,29 +37,3 @@ def zip_folder_with_progress(folder_path: str, job_id: str) -> str:
             )
 
     return zip_path
-
-
-def zip_folder_stream(folder_path: str, chunk_size=8192):
-    """
-    Stream ZIP file without corrupting it
-    """
-    read_fd, write_fd = os.pipe()
-
-    def zip_writer():
-        with os.fdopen(write_fd, "wb") as pipe:
-            with zipfile.ZipFile(pipe, "w", zipfile.ZIP_DEFLATED) as zipf:
-                for root, _, files in os.walk(folder_path):
-                    for file in files:
-                        file_path = os.path.join(root, file)
-                        zipf.write(file_path, arcname=file)
-
-    import threading
-
-    threading.Thread(target=zip_writer, daemon=True).start()
-
-    with os.fdopen(read_fd, "rb") as pipe:
-        while True:
-            chunk = pipe.read(chunk_size)
-            if not chunk:
-                break
-            yield chunk

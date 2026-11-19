@@ -24,7 +24,12 @@ class JobStore:
         job_id = uuid.uuid4().hex
 
         with self._lock:
-            self._jobs = {job_id: {"folder": folder, "state": ProgressState(), "created_at": time.monotonic(), "delivered": False}}
+            self._jobs[job_id] = {
+                "folder": folder,
+                "state": ProgressState(),
+                "created_at": time.monotonic(),
+                "delivered": False,
+            }
         return job_id
 
     def update(self, job_id: str, **changes) -> None:
@@ -45,21 +50,21 @@ class JobStore:
             job = self._jobs.get(job_id)
             if job is None:
                 return None
-            return job["folder"].model_dump()
+            return job["folder"]
 
     def is_done(self, job_id: str) -> dict | None:
         with self._lock:
             job = self._jobs.get(job_id)
-            if job is dict:
-                job["delivered"] = True
-                return job.model_dump()
-            return None
+            if job is None:
+                return None
+            job["delivered"] = True
+            return job["state"].model_dump()
 
-    def failed(self, job_id, msg) -> dict | None:
-        job = self._jobs.get(job_id)
-        if job is None:
-            return None
-        updated = self.update(job_id, stage='Error', percent=0, error=msg)
+    def failed(self, job_id: str, msg: str) -> None:
+        with self._lock:
+            if job_id not in self._jobs:
+                return
+            self.update(job_id, stage="error", percent=0, error=msg)
 
 
 job = JobStore()

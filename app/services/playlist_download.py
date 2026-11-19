@@ -19,7 +19,9 @@ def make_progress_hook(job_id: str):
     return hook
 
 
-def download_urls(urls: list[str], output_template: str, job_id: str):
+def download_urls(
+    urls: list[str], output_template: str, job_id: str, noplaylist: bool = False
+):
     total_videos = len(urls)
     completed_videos = 0
     known_total_bytes = 0
@@ -68,6 +70,7 @@ def download_urls(urls: list[str], output_template: str, job_id: str):
         "format": "bv*+ba/b",
         "merge_output_format": "mp4",
         "quiet": True,
+        "noplaylist": noplaylist,
         "progress_hooks": [make_progress_hook()],
     }
 
