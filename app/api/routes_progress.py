@@ -1,5 +1,7 @@
 import asyncio
+
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+
 from app.core.jobs import job
 
 progress_router = APIRouter(prefix="/ws", tags=["Progress"])
@@ -9,25 +11,30 @@ progress_router = APIRouter(prefix="/ws", tags=["Progress"])
 async def websocket_progress(websocket: WebSocket, job_id: str):
     await websocket.accept()
 
+    # -1 garante que o primeiro estado (revision 0) também seja enviado.
+    ultima_revisao = -1
+
     try:
-        last_percent = -1
-
         while True:
-            data = job.get_progress(job_id)
+            state = job.get_progress(job_id)
 
-            if not data:
-                await websocket.send_json({"stage": "unknown", "percent": 0})
-                await asyncio.sleep(1)
-                continue
+            if state is None:
+                await websocket.send_json(
+                    {"stage": "error", "error": "Job não encontrado"}
+                )
+                await websocket.close()
+                return
 
-            if data["percent"] != last_percent:
-                await websocket.send_json(data)
-                last_percent = data["percent"]
+            if state["revision"] != ultima_revisao:
+                await websocket.send_json(state)
+                ultima_revisao = state["revision"]
 
-            if data["stage"] == "done":
+            if state["stage"] in {"done", "error"}:
                 break
 
-            await asyncio.sleep(0.5)
+            await asyncio.sleep(0.2)
+
+        await websocket.close()
 
     except WebSocketDisconnect:
         pass
