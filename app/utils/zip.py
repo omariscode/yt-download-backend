@@ -23,7 +23,7 @@ def zip_folder_with_progress(folder_path: str, job_id: str) -> str:
             job.update(job_id,
                        stage="zipping",current=i+1,
                        total=total_files,
-                       bytes_downloaded=i+1,
+                       downloaded_bytes=i+1,
                        total_bytes=total_files,
                        percent=50 + int((i + 1) / total_files * 50)
                     )
@@ -31,7 +31,7 @@ def zip_folder_with_progress(folder_path: str, job_id: str) -> str:
 
     job.update(job_id, stage="done",
                current=total_files,
-               bytes_downloaded=total_files,
+               downloaded_bytes=total_files,
                total_bytes=total_files,
                percent=100
             )

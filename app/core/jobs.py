@@ -10,7 +10,7 @@ class ProgressState(BaseModel):
     percent: int = Field(default=0, ge=0, le=100)
     current: int = 0
     total: int = 0
-    bytes_downloaded: int = 0
+    downloaded_bytes: int = 0
     total_bytes: int = 0
     error: str | None = None
     revision: int = 0
