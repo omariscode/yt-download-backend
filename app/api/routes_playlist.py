@@ -11,7 +11,7 @@ def analyze_playlist_route(payload: PlaylistCreate):
     Rota para analisar uma playlist do YouTube e retornar os detalhes.
     """
     try:
-        data = analyze_playlist(payload.url)
+        data = analyze_playlist(str(payload.url))
 
         videos = [
             Videos(
