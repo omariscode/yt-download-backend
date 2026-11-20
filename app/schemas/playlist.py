@@ -14,7 +14,7 @@ class Playlist(BaseModel):
     title: str
     count_videos: int
     thumbnail: str | None
-    videos: List[Videos] = Field(ge=0, le=50)
+    videos: List[Videos] = Field(min_length=0, max_length=50)
 
 
 class PlaylistCreate(BaseModel):

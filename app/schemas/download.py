@@ -7,4 +7,4 @@ class SelectedVideo(BaseModel):
 
 
 class SelectedVideosPayload(BaseModel):
-    videos: List[SelectedVideo] = Field(ge=1, le=50)
+    videos: List[SelectedVideo] = Field(min_length=1, max_length=50)
